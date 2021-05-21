@@ -1,0 +1,16 @@
+{
+    "name": "vendimia/http",
+    "description": "HTTP protocol classes",
+    "keywords": ["request", "response", "http"],
+    "version": "0.1",
+    "license": "GPL-3.0-or-later",
+    "require": {
+        "psr/http-message": "^1.0"
+        "php": ">=7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Vendimia\\Http\\": "src"
+        }
+    }
+}
