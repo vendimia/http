@@ -14,21 +14,15 @@ class Request extends Psr\ServerRequest
      */
     public static function fromPHP(): self
     {
-        // Separamos el target del query string
-        $path = $_SERVER['REQUEST_URI'];
-        $query_separator = strpos($path, '?');
-        $query = '';
-
-        if ($query_separator !== false) {
-            $query = substr($path, $query_separator + 1);
-            $path = substr($path, 0, $query_separator);
-        }
+        $parsed_url = parse_url($_SERVER['REQUEST_URI']);
 
         $uri = (new Psr\Uri())
-            ->withScheme($_SERVER['REQUEST_SCHEME'] ?? 'http')
+            ->withScheme($_SERVER['REQUEST_SCHEME'] ?? 
+                ($_SERVER['HTTPS'] ? 'https' : 'http')
+            )
             ->withHost($_SERVER['HTTP_HOST'])
-            ->withPath($path)
-            ->withQuery($query)
+            ->withPath(urldecode($parsed_url['path']))
+            ->withQuery(urldecode($parsed_url['query']))
         ;
 
         $body = new Psr\Stream('php://input');
