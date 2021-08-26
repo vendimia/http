@@ -18,11 +18,11 @@ class Request extends Psr\ServerRequest
 
         $uri = (new Psr\Uri())
             ->withScheme($_SERVER['REQUEST_SCHEME'] ?? 
-                ($_SERVER['HTTPS'] ? 'https' : 'http')
+                (($_SERVER['HTTPS'] ?? false) ? 'https' : 'http')
             )
             ->withHost($_SERVER['HTTP_HOST'])
             ->withPath(urldecode($parsed_url['path']))
-            ->withQuery(urldecode($parsed_url['query']))
+            ->withQuery(urldecode($parsed_url['query'] ?? ''))
         ;
 
         $body = new Psr\Stream('php://input');
