@@ -30,7 +30,7 @@ class Response extends Message implements ResponseInterface
         return $response;
     }
 
-    public function getReasonPhrase(): str
+    public function getReasonPhrase(): string
     {
         return $this->reason;
     }
