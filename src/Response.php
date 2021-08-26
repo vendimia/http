@@ -15,4 +15,31 @@ class Response extends Psr\Response
             ->withBody($body)
         ;
     }
+
+    /** 
+     * Creates an actual HTTP response and sends it to the client.
+     */
+    public function send()
+    {
+        // Código de respuesta
+        header(join(' ', [
+            'HTTP/' . $this->getProtocolVersion(),
+            $this->getStatusCode(),
+            $this->getReasonPhrase(),
+        ]));
+
+        // Cabeceras
+        foreach ($this->getHeaders() as $name => $values) {
+            foreach ($values as $value) {
+                header("{$name}: {$value}");
+            }
+        }
+        
+        // Enviamos la data
+        $this->getBody()->rewind();
+        echo $this->getBody()->getContents();
+
+        // Y listo.
+        exit;
+    }
 }
