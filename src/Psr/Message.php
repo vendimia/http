@@ -69,7 +69,11 @@ class Message implements MessageInterface
 
     public function getHeader($name)
     {
+        if ($this->hasHeader($name)) {
+            return $this->headers[$this->header_case_map[strtolower($name)]];
+        }
 
+        return [];
     }
 
     /**
