@@ -161,19 +161,4 @@ class Message implements MessageInterface
 
         return $message;
     }
-
-    /**
-     * Sets all the headers from getallheaders() function, fast.
-     */
-    public function setHeadersFromPHP(): self
-    {
-        foreach (getallheaders() as $name => $value) {
-            $lc_name = strtolower($name);
-            $this->headers[$name][] = $value;
-            $this->header_case_map[$lc_name] = $name;
-        }
-
-        return $this;
-    }
-
 }

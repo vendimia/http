@@ -5,9 +5,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use InvalidArgumentException;
 
-/** 
+/**
  * Vendimia PSR-7 ServerRequestInterface implementation
- * 
+ *
  * @author Oliver Etchebarne <yo@drmad.org>
  */
 class ServerRequest extends Request implements ServerRequestInterface
@@ -30,21 +30,21 @@ class ServerRequest extends Request implements ServerRequestInterface
     public function withCookieParams(array $cookies): array
     {
 
-    }    
+    }
 
     public function getQueryParams(): array
     {
         return $this->query;
     }
 
-    public function withQueryParams(array $query): self 
+    public function withQueryParams(array $query): self
     {
         $server_request = clone $this;
-        
+
         $server_request->query = $query;
 
         return $server_request;
-    }    
+    }
 
     public function getUploadedFiles(): array
     {
@@ -56,7 +56,7 @@ class ServerRequest extends Request implements ServerRequestInterface
         $server_request = clone $this;
 
         return $this;
-    }    
+    }
 
     public function getParsedBody(): array|object|null
     {
@@ -94,4 +94,19 @@ class ServerRequest extends Request implements ServerRequestInterface
 
         return $this;
     }
+
+    /**
+     * Sets all the headers from getallheaders() function, fast.
+     */
+    public function setHeadersFromPHP(): self
+    {
+        foreach (getallheaders() as $name => $value) {
+            $lc_name = strtolower($name);
+            $this->headers[$name][] = $value;
+            $this->header_case_map[$lc_name] = $name;
+        }
+
+        return $this;
+    }
+
 }
