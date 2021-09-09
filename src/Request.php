@@ -1,6 +1,8 @@
 <?php
 namespace Vendimia\Http;
 
+use Vendimia\Collection\Collection;
+
 /**
  * HTTP Request from the client
  *
@@ -8,6 +10,14 @@ namespace Vendimia\Http;
  */
 class Request extends Psr\ServerRequest
 {
+    // Shortcut to $this->getParsedBody(), in a Vendimia\Collection\Collection
+    // if available
+    public $parsed_body;
+
+    // Shortcut to $this->getQueryParams(), in a Vendimia\Collection\Collection
+    // if available
+    public $query_args;
+
     /**
      * Returns a new ServerRequest object with information gathered by
      * PHP
@@ -35,6 +45,28 @@ class Request extends Psr\ServerRequest
             ->withBody($body)
             ->setHeadersFromPHP()
         ;
+
+        // Si hay contenido, intentamos parsearlo
+
+        // FIXME: Esto debe estar modularizado
+        if ($content_type = $server_request->getHeader('content-type')) {
+            $content_type = strtolower($content_type[0]);
+
+            $body_content = $body->getContents();
+
+            if ($content_type == 'application/x-www-form-urlencoded') {
+                parse_str($body_content, $parsed_body);
+                $server_request = $server_request->withParsedBody($parsed_body);
+            }
+        }
+
+        $server_request->parsed_body = $server_request->getParsedBody();
+        $server_request->query_args = $server_request->getQueryParams();
+
+        if (class_exists(Collection::class)) {
+            $server_request->parsed_body = new Collection($server_request->parsed_body);
+            $server_request->query_args = new Collection($server_request->query_args);
+        }
 
         return $server_request;
     }
