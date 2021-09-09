@@ -10,25 +10,25 @@ use InvalidArgumentException;
  */
 class Message implements MessageInterface
 {
-    private string $protocol_version = '1.1';
-    private StreamInterface $body;
+    protected string $protocol_version = '1.1';
+    protected StreamInterface $body;
 
     /**
      * Message header.
      *
      * The key is saved with its original case.
      */
-    private array $headers = [];
+    protected array $headers = [];
 
     /**
      * Lowercase version of the header key name.
      */
-    private array $header_case_map = [];
+    protected array $header_case_map = [];
 
     /**
      * Returns the real-case header name
      */
-    private function getRealHeaderName($name): ?string
+    protected function getRealHeaderName($name): ?string
     {
         return $this->header_case_map[strtolower($name)] ?? null;
     }
