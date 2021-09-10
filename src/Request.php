@@ -10,6 +10,14 @@ use Vendimia\Collection\Collection;
  */
 class Request extends Psr\ServerRequest
 {
+    /**
+     * Default Body parsers
+     */
+    const REGISTERED_PARSERS = [
+        BodyParser\Url::class,
+        BodyParser\Json::class,
+    ];
+
     // Shortcut to $this->getParsedBody(), in a Vendimia\Collection\Collection
     // if available
     public $parsed_body;
@@ -47,16 +55,21 @@ class Request extends Psr\ServerRequest
         ;
 
         // Si hay contenido, intentamos parsearlo
+        if ($content_type = $server_request->getHeaderLine('content-type')) {
+            foreach (self::REGISTERED_PARSERS as $parse_class) {
+                if ($parse_class::canDecode($content_type)) {
+                    $body_content = $body->getContents();
 
-        // FIXME: Esto debe estar modularizado
-        if ($content_type = $server_request->getHeader('content-type')) {
-            $content_type = strtolower($content_type[0]);
-
-            $body_content = $body->getContents();
-
-            if ($content_type == 'application/x-www-form-urlencoded') {
-                parse_str($body_content, $parsed_body);
-                $server_request = $server_request->withParsedBody($parsed_body);
+                    // Si no hay contenido, no hacemos nada
+                    if (!$body_content) {
+                        break;
+                    }
+                    
+                    $server_request = $server_request->withParsedBody(
+                        $parse_class::parse($body_content)
+                    );
+                    break;
+                }
             }
         }
 
