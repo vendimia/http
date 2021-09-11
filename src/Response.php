@@ -29,7 +29,7 @@ class Response extends Psr\Response implements Stringable
     public static function redirect($url): self
     {
         return (new self)
-            ->withStatus(303)
+            ->withStatus(303, 'See Other')
             ->withHeader('Location', $url)
         ;
     }
