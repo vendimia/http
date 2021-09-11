@@ -1,10 +1,12 @@
 <?php
 namespace Vendimia\Http;
 
+use Stringable;
+
 /**
  * HTTP Response to the client
  */
-class Response extends Psr\Response
+class Response extends Psr\Response implements Stringable
 {
     public static function fromString($string)
     {
@@ -25,6 +27,44 @@ class Response extends Psr\Response
             ->withStatus(303)
             ->withHeader('Location', $url)
         ;
+    }
+
+    /**
+     * Builds the HTTP response as a string
+     */
+    public function build(): string
+    {
+        // Código de respuesta
+        $return = join(' ', [
+            'HTTP/' . $this->getProtocolVersion(),
+            $this->getStatusCode(),
+            $this->getReasonPhrase(),
+        ]) . "\n";
+
+        // Cabeceras
+        foreach ($this->getHeaders() as $name => $values) {
+            foreach ($values as $value) {
+                $return .= "{$name}: {$value}\n";
+            }
+        }
+
+        // Añadimos el cuerpo
+        $this->getBody()->rewind();
+        $body = $this->getBody()->getContents();
+
+        if ($body) {
+            $return .= "\n" . $body;
+        }
+
+        return $return;
+    }
+
+    /**
+     * Stringable:__toString() implementation
+     */
+    public function __toString()
+    {
+        return $this->build();
     }
 
     /**
