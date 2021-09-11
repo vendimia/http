@@ -8,6 +8,11 @@ use Stringable;
  */
 class Response extends Psr\Response implements Stringable
 {
+    public function __construct()
+    {
+        $this->body = new Psr\Stream('php://temp', 'w');
+    }
+
     public static function fromString($string)
     {
         $body = new Psr\Stream('php://temp', 'w');
