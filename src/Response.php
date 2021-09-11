@@ -17,12 +17,12 @@ class Response extends Psr\Response
     }
 
     /**
-     * Creates a response for redirect to another url, using HTTP 302.
+     * Creates a response for redirect to another url, using HTTP 303.
      */
     public static function redirect($url): self
     {
         return (new self)
-            ->withStatus(302)
+            ->withStatus(303)
             ->withHeader('Location', $url)
         ;
     }
