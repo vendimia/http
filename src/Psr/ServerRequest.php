@@ -12,7 +12,7 @@ use InvalidArgumentException;
  */
 class ServerRequest extends Request implements ServerRequestInterface
 {
-    private array $params = [];
+    private array $server_params = [];
     private array $cookies = [];
     private array $query = [];
     private array $attributes = [];
@@ -20,7 +20,7 @@ class ServerRequest extends Request implements ServerRequestInterface
 
     public function getServerParams(): array
     {
-        return $this->params;
+        return $this->server_params;
     }
 
     public function getCookieParams(): array
@@ -105,6 +105,11 @@ class ServerRequest extends Request implements ServerRequestInterface
             $this->headers[$name][] = $value;
             $this->header_case_map[$lc_name] = $name;
         }
+
+        // TODO: ¿Hay alguna forma de obtener el environment del servidor web
+        // sin usar $_SERVER? getenv() devuelve el environment del sistema
+        // operativo, donde no está p.e. REMOTE_ADDR
+        $this->server_params = $_SERVER;
 
         return $this;
     }
