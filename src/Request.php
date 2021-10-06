@@ -24,7 +24,7 @@ class Request extends Psr\ServerRequest
 
     // Shortcut to $this->getQueryParams(), in a Vendimia\Collection\Collection
     // if available
-    public $query_args;
+    public $query_params;
 
     /**
      * Returns a new ServerRequest object with information gathered by
@@ -64,7 +64,7 @@ class Request extends Psr\ServerRequest
                     if (!$body_content) {
                         break;
                     }
-                    
+
                     $server_request = $server_request->withParsedBody(
                         $parse_class::parse($body_content)
                     );
@@ -74,11 +74,11 @@ class Request extends Psr\ServerRequest
         }
 
         $server_request->parsed_body = $server_request->getParsedBody();
-        $server_request->query_args = $server_request->getQueryParams();
+        $server_request->query_params = $server_request->getQueryParams();
 
         if (class_exists(Collection::class)) {
             $server_request->parsed_body = new Collection($server_request->parsed_body);
-            $server_request->query_args = new Collection($server_request->query_args);
+            $server_request->query_params = new Collection($server_request->query_params);
         }
 
         return $server_request;
