@@ -56,6 +56,9 @@ class Request extends Psr\ServerRequest
 
         // Si hay contenido, intentamos parsearlo
         if ($content_type = $server_request->getHeaderLine('content-type')) {
+            // Ignoramos los parámetros extras
+            $content_type = trim(explode(';', $content_type)[0]);
+
             foreach (self::REGISTERED_PARSERS as $parse_class) {
                 if ($parse_class::canDecode($content_type)) {
                     $body_content = $body->getContents();
