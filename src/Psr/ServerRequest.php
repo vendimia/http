@@ -78,13 +78,13 @@ class ServerRequest extends Request implements ServerRequestInterface
 
     public function getAttribute($name, $default = null): mixed
     {
-
+        return $this->attributes[$name] ?? $default;
     }
 
     public function withAttribute($name, $value): self
     {
         $server_request = clone $this;
-
+        $this->attributes[$name] = $value;
         return $this;
     }
 
