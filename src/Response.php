@@ -20,6 +20,7 @@ class Response extends Psr\Response implements Stringable
 
         return (new self)
             ->withBody($body)
+            ->withHeader('Content-length', strlen($string))
         ;
     }
 
@@ -97,5 +98,15 @@ class Response extends Psr\Response implements Stringable
 
         // Y listo.
         exit;
+    }
+
+    /**
+     * Returns a new Response with a JSON body
+     */
+    public static function json(array $payload)
+    {
+        return self::fromString(json_encode($payload))
+            ->withHeader('Content-type', 'application/json')
+        ;
     }
 }
