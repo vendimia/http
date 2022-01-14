@@ -24,6 +24,17 @@ class Response extends Psr\Response implements Stringable
         ;
     }
 
+    public static function fromFile($filename, $mime)
+    {
+        $body = new Psr\Stream($filename);
+
+        return (new self)
+            ->withBody($body)
+            ->withHeader('Content-Length', $body->getSize())
+            ->withHeader('Content-Type', $mime)
+        ;
+    }
+
     /**
      * Creates a response for redirect to another url, using HTTP 303.
      */
