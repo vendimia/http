@@ -63,14 +63,13 @@ class Request extends Psr\ServerRequest
                 if ($parse_class::canDecode($content_type)) {
                     $body_content = $body->getContents();
 
-                    // Si no hay contenido, no hacemos nada
-                    if (!$body_content) {
-                        break;
+                    // Solo parseamos si hay contenido en el body
+                    if ($body_content) {
+                        $server_request = $server_request->withParsedBody(
+                            $parse_class::parse($body_content)
+                        );
                     }
 
-                    $server_request = $server_request->withParsedBody(
-                        $parse_class::parse($body_content)
-                    );
                     break;
                 }
             }
@@ -80,8 +79,8 @@ class Request extends Psr\ServerRequest
         $server_request->query_params = $server_request->getQueryParams();
 
         if (class_exists(Collection::class)) {
-            $server_request->parsed_body = new Collection($server_request->parsed_body);
-            $server_request->query_params = new Collection($server_request->query_params);
+            $server_request->parsed_body = new Collection(...$server_request->parsed_body);
+            $server_request->query_params = new Collection(...$server_request->query_params);
         }
 
         return $server_request;

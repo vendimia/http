@@ -7,6 +7,11 @@
         "psr/http-message": "^1.0",
         "php": ">=7.0"
     },
+
+    "suggest": {
+        "vendimia/collection": "Creates the parsed body and query params shortcuts in the request as Collections rather than arrays"
+    },
+
     "autoload": {
         "psr-4": {
             "Vendimia\\Http\\": "src"
