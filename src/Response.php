@@ -114,10 +114,11 @@ class Response extends Psr\Response implements Stringable
     /**
      * Returns a new Response with a JSON body
      */
-    public static function json(array $payload)
+    public static function json(array $payload, $code = 200, $reason = "OK")
     {
         return self::fromString(json_encode($payload))
             ->withHeader('Content-type', 'application/json')
+            ->withStatus($code, $reason)
         ;
     }
 }
