@@ -5,16 +5,16 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriInterface;
 use InvalidArgumentException;
 
-/** 
+/**
  * Vendimia PSR-7 RequestInterface implementation
- * 
+ *
  * @author Oliver Etchebarne <yo@drmad.org>
  */
 class Request extends Message implements RequestInterface
 {
-    private $method;
+    private $method = '';
     private $request_target = '/';
-    private UriInterface $uri;
+    private ?UriInterface $uri = null;
 
     public function getRequestTarget(): string
     {
@@ -49,7 +49,7 @@ class Request extends Message implements RequestInterface
         return $request;
     }
 
-    public function getUri(): UriInterface
+    public function getUri(): ?UriInterface
     {
         return $this->uri;
     }
