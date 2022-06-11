@@ -32,7 +32,8 @@ class Request extends Psr\ServerRequest
      */
     public static function fromPHP(): self
     {
-        $parsed_url = parse_url($_SERVER['REQUEST_URI']);
+        // Evitamos que falle una URL '//' trimeando los slashes
+        $parsed_url = parse_url(trim($_SERVER['REQUEST_URI'], '/'));
 
         $uri = (new Psr\Uri())
             ->withScheme($_SERVER['REQUEST_SCHEME'] ??
