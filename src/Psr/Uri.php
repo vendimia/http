@@ -122,32 +122,51 @@ class Uri implements UriInterface
         return $uri;
     }
 
-    public function withPath($path): self 
+    public function withPath($path): self
     {
         $uri = clone $this;
-        $uri->components['path'] = $path;
+        $uri->components['path'] = trim($path);
 
         return $uri;
     }
 
-    public function withQuery($query): self 
+    public function withQuery($query): self
     {
         $uri = clone $this;
-        $uri->components['query'] = $query;
+        $uri->components['query'] = trim($query);
 
         return $uri;
     }
 
-    public function withFragment($fragment): self 
+    public function withFragment($fragment): self
     {
         $uri = clone $this;
-        $uri->components['frament'] = $fragment;
+        $uri->components['fragment'] = trim($fragment);
 
         return $uri;
     }
 
-    public function __toString()
+    /**
+     * Returns the URI built from the components
+     */
+    public function getString(): string
     {
-        return "";
+        return
+            (isset($this->components['scheme']) ? $this->components['scheme'] . '://' : '') .
+            ($this->components['user'] ?? '') .
+            (isset($this->components['pass']) ? ':' . $this->components['pass'] : '') .
+            ((($this->components['user'] ?? false) || ($this->components['pass'] ?? false)) ? '@' : '') .
+            ($this->components['host'] ?? '') .
+            (isset($this->components['port']) ? ':' . $this->components['port'] : '') .
+            (isset($this->components['path']) ? '/' . ltrim($this->components['path'], '/') : '') .
+            (isset($this->components['query']) ? '?' . $this->components['query'] : '') .
+            (isset($this->components['fragment']) ? '#' . $this->components['fragment'] : '') .
+            ''  // usado para mantener un '.' al final de la línea anterior
+        ;
+    }
+
+    public function __toString(): string
+    {
+        return $this->getString();
     }
 }
