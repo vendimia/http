@@ -108,7 +108,12 @@ class Uri implements UriInterface
     public function withPort($port): self
     {
         $uri = clone $this;
-        if (isset($port)) {
+
+        if ($port < 1 || $port > 65535) {
+            throw InvalidArgumentException("Port out of range");
+        }
+
+        if (is_null($port)) {
             unset($uri->components['port']);
         } else {
             $uri->components['port'] = $port;
