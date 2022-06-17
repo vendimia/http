@@ -169,16 +169,25 @@ class Uri implements UriInterface, Stringable
      */
     public function getString(): string
     {
+        // Ignoramos si port es 80 o 443;
+        $port = '';
+
+        if (($this->components['port'] ?? false) &&
+            !in_array(intval($this->components['port']), [80, 443])) {
+            $port = ':' . $this->components['port'];
+        }
+
+        if ((isset($this->components['port']) ? ':' . $this->components['port'] : ''))
         return
             (isset($this->components['scheme']) ? $this->components['scheme'] . '://' : '') .
             ($this->components['user'] ?? '') .
             (isset($this->components['pass']) ? ':' . $this->components['pass'] : '') .
             ((($this->components['user'] ?? false) || ($this->components['pass'] ?? false)) ? '@' : '') .
             ($this->components['host'] ?? '') .
-            (isset($this->components['port']) ? ':' . $this->components['port'] : '') .
+            $port .
             ($this->getPath(true) ? '/' . $this->getPath(true) : '') .
             ((isset($this->components['query']) && $this->components['query']) ? '?' . $this->components['query'] : '') .
-            (isset($this->components['fragment']) ? '#' . $this->components['fragment'] : '') .
+            ((isset($this->components['fragment']) && $this->components['fragment']) ? '#' . $this->components['fragment'] : '') .
             ''  // usado para mantener un '.' al final de la línea anterior
         ;
     }
