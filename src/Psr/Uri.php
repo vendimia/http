@@ -10,31 +10,12 @@ class Uri implements UriInterface, Stringable
     private array $components = [];
 
     /**
-     * URL-encode every segment of the path
-     */
-    private function urlencodePath($path): array
-    {
-        $path_segments = explode('/', $path);
-        $sanitized_path = array_map(
-            fn($value) => rawurlencode($value),
-            $path_segments
-        );
-
-        return $sanitized_path;
-    }
-
-    /**
      * Creates a new URI from a string
      */
     public function __construct(?string $uri = null)
     {
         if ($uri) {
             $this->components = parse_url($uri);
-
-            // Saneamos el path
-            $this->components['path'] = $this->urlencodePath(
-                $this->components['path'] ?? ''
-            );
         }
     }
 
@@ -90,7 +71,7 @@ class Uri implements UriInterface, Stringable
      */
     public function getPath($ltrim_slash = false): string
     {
-        $path = join('/', $this->components['path']);
+        $path = $this->components['path'] ?? '';
 
         if ($ltrim_slash) {
             return ltrim($path, '/');
@@ -102,14 +83,9 @@ class Uri implements UriInterface, Stringable
     /**
      * Returns the unencoded path
      */
-    public function getDecodedPath(): string
+    public function getDecodedPath($ltrim_slash = false): string
     {
-        $segments = array_map(
-            fn($value) => rawurldecode($value),
-            $this->components['path']
-        );
-
-        return join('/', $segments);
+        return rawurldecode($this->getPath($ltrim_slash));
     }
 
     public function getQuery(): string
@@ -167,7 +143,7 @@ class Uri implements UriInterface, Stringable
     public function withPath($path): self
     {
         $uri = clone $this;
-        $uri->components['path'] = $this->urlencodePath($path);
+        $uri->components['path'] = $path;
 
         return $uri;
     }
