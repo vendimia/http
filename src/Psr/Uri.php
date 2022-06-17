@@ -3,10 +3,25 @@ namespace Vendimia\Http\Psr;
 
 use Psr\Http\Message\UriInterface;
 use InvalidArgumentException;
+use Stringable;
 
-class Uri implements UriInterface
+class Uri implements UriInterface, Stringable
 {
     private array $components = [];
+
+    /**
+     * URL-encode every segment of the path
+     */
+    private function urlencodePath($path): array
+    {
+        $path_segments = explode('/', $path);
+        $sanitized_path = array_map(
+            fn($value) => rawurlencode($value),
+            $path_segments
+        );
+
+        return $sanitized_path;
+    }
 
     /**
      * Creates a new URI from a string
@@ -15,6 +30,11 @@ class Uri implements UriInterface
     {
         if ($uri) {
             $this->components = parse_url($uri);
+
+            // Saneamos el path
+            $this->components['path'] = $this->urlencodePath(
+                $this->components['path'] ?? ''
+            );
         }
     }
 
@@ -65,9 +85,31 @@ class Uri implements UriInterface
         return $this->components['port'] ?? null;
     }
 
-    public function getPath(): string
+    /**
+     * @var bool $ltrim_slash Left-trim any prepending slash
+     */
+    public function getPath($ltrim_slash = false): string
     {
-        return $this->components['path'] ?? '';
+        $path = join('/', $this->components['path']);
+
+        if ($ltrim_slash) {
+            return ltrim($path, '/');
+        }
+
+        return $path;
+    }
+
+    /**
+     * Returns the unencoded path
+     */
+    public function getDecodedPath(): string
+    {
+        $segments = array_map(
+            fn($value) => rawurldecode($value),
+            $this->components['path']
+        );
+
+        return join('/', $segments);
     }
 
     public function getQuery(): string
@@ -125,7 +167,7 @@ class Uri implements UriInterface
     public function withPath($path): self
     {
         $uri = clone $this;
-        $uri->components['path'] = trim($path);
+        $uri->components['path'] = $this->urlencodePath($path);
 
         return $uri;
     }
@@ -158,8 +200,8 @@ class Uri implements UriInterface
             ((($this->components['user'] ?? false) || ($this->components['pass'] ?? false)) ? '@' : '') .
             ($this->components['host'] ?? '') .
             (isset($this->components['port']) ? ':' . $this->components['port'] : '') .
-            (isset($this->components['path']) ? '/' . ltrim($this->components['path'], '/') : '') .
-            (isset($this->components['query']) ? '?' . $this->components['query'] : '') .
+            ($this->getPath(true) ? '/' . $this->getPath(true) : '') .
+            ((isset($this->components['query']) && $this->components['query']) ? '?' . $this->components['query'] : '') .
             (isset($this->components['fragment']) ? '#' . $this->components['fragment'] : '') .
             ''  // usado para mantener un '.' al final de la línea anterior
         ;
