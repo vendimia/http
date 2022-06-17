@@ -7,8 +7,8 @@ final class UriTest extends TestCase
 {
     public function testStringToString()
     {
-        $source = 'http://usr:pss@example.com:81/mypath/myfile.html?a=b&b[]=2&b[]=3#myfragment';
-        $uri = new Vendimia\Http\Psr\Uri('http://usr:pss@example.com:81/mypath/myfile.html?a=b&b[]=2&b[]=3#myfragment');
+        $source = 'http://usr:pss@example.com:81/mypath/with-an-eñe/myfile.html?a=b&b[]=2&b[]=3#myfragment';
+        $uri = new Vendimia\Http\Psr\Uri($source);
 
         $this->assertEquals(
             $source,
