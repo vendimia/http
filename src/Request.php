@@ -33,15 +33,23 @@ class Request extends Psr\ServerRequest
     public static function fromPHP(): self
     {
         // Evitamos que falle una URL '//' trimeando los slashes
-        $parsed_url = parse_url(trim($_SERVER['REQUEST_URI'], '/'));
+        $parsed_url = parse_url(ltrim($_SERVER['REQUEST_URI'], '/'));
 
-        $uri = (new Psr\Uri())
+        // Si $host trae puerto, lo ignoramos
+        $host = $_SERVER['HTTP_HOST'];
+        if (($colon_post = strpos($host, ':')) !== false) {
+            $host = substr($host, 0, $colon_post);
+        }
+
+        $uri = (new Psr\Uri)
             ->withScheme($_SERVER['REQUEST_SCHEME'] ??
                 (($_SERVER['HTTPS'] ?? false) ? 'https' : 'http')
             )
-            ->withHost($_SERVER['HTTP_HOST'])
-            ->withPath(urldecode($parsed_url['path']))
-            ->withQuery(urldecode($parsed_url['query'] ?? ''))
+            ->withHost($host)
+            ->withPort($_SERVER['SERVER_PORT'])
+            ->withPath($parsed_url['path'] ?? '')
+            ->withQuery($parsed_url['query'] ?? '')
+            ->withFragment($parsed_url['fragment'] ?? '')
         ;
 
         $body = new Psr\Stream('php://input');
