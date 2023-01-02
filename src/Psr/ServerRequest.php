@@ -109,10 +109,9 @@ class ServerRequest extends Request implements ServerRequestInterface
             $this->header_case_map[$lc_name] = $name;
         }
 
-        // TODO: ¿Hay alguna forma de obtener el environment del servidor web
-        // sin usar $_SERVER? getenv() devuelve el environment del sistema
-        // operativo, donde no está p.e. REMOTE_ADDR
-        $this->server_params = $_SERVER;
+        foreach (apache_request_headers() as $key => $value) {
+            $this->server_params[strtolower($key)] = $value;
+        }
 
         return $this;
     }
