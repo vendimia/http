@@ -59,6 +59,7 @@ class Request extends Psr\ServerRequest
             ->withUri($uri)
             ->withRequestTarget($_SERVER['REQUEST_URI'])
             ->withQueryParams($_GET)
+            ->withCookieParams($_COOKIE)
             ->withBody($body)
             ->setHeadersFromPHP()
         ;

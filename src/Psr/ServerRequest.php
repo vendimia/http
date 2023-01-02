@@ -25,11 +25,15 @@ class ServerRequest extends Request implements ServerRequestInterface
 
     public function getCookieParams(): array
     {
-
+        return $this->cookies;
     }
-    public function withCookieParams(array $cookies): array
-    {
 
+    public function withCookieParams(array $cookies): self
+    {
+        $server_request = clone $this;
+        $server_request->cookies = $cookies;
+
+        return $server_request;
     }
 
     public function getQueryParams(): array
@@ -40,7 +44,6 @@ class ServerRequest extends Request implements ServerRequestInterface
     public function withQueryParams(array $query): self
     {
         $server_request = clone $this;
-
         $server_request->query = $query;
 
         return $server_request;
