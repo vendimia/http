@@ -13,9 +13,10 @@ class Request extends Psr\ServerRequest
     /**
      * Default Body parsers
      */
-    const REGISTERED_PARSERS = [
-        BodyParser\Url::class,
-        BodyParser\Json::class,
+    private static $REGISTERED_PARSERS = [
+        'application/x-www-form-urlencoded' => BodyParser\Url::class,
+        'application/json' => BodyParser\Json::class,
+        'multipart/form-data' => BodyParser\FormData::class,
     ];
 
     // Shortcut to $this->getParsedBody(), in a Vendimia\Collection\Collection
@@ -69,7 +70,11 @@ class Request extends Psr\ServerRequest
             // Ignoramos los parámetros extras
             $content_type = trim(explode(';', $content_type)[0]);
 
-            foreach (self::REGISTERED_PARSERS as $parse_class) {
+            if ($parser_class = self::$REGISTERED_PARSERS[$content_type] ?? null) {
+                $server_request = $parser_class::parseBody($server_request);
+            }
+
+            /*foreach (self::$REGISTERED_PARSERS as $mime => $parse_class) {
                 if ($parse_class::canDecode($content_type)) {
                     $body_content = $body->getContents();
 
@@ -82,7 +87,7 @@ class Request extends Psr\ServerRequest
 
                     break;
                 }
-            }
+            }*/
         }
 
         $server_request->parsed_body = $server_request->getParsedBody();

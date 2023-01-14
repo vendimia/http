@@ -1,9 +1,11 @@
 <?php
+
 namespace Vendimia\Http\BodyParser;
 
+use Vendimia\Http\Request;
+use Vendimia\Exception\VendimiaException;
 use Exception;
 use JsonException;
-use Vendimia\Exception\VendimiaException;
 
 /**
  * Parses a JSON body to an array.
@@ -12,16 +14,16 @@ use Vendimia\Exception\VendimiaException;
  */
 class Json implements BodyParserInterface
 {
-    public static function canDecode(string $mime): bool
+    public static function parseBody(Request $request): Request
     {
-        return $mime == 'application/json';
-    }
+        $body = $request->getBody()->getContents();
+        if (!$body) {
+            return $request;
+        }
 
-    public static function parse($source): array
-    {
         try {
             $result = json_decode(
-                $source,
+                $body,
                 associative: true,
                 flags: JSON_THROW_ON_ERROR
             );
@@ -29,13 +31,15 @@ class Json implements BodyParserInterface
             // Lo rethrowamos
             if (class_exists(VendimiaException::class)) {
                 throw new VendimiaException("Error parsing JSON body: " . $e->getMessage(),
-                    original_body: $source,
+                    original_body: $body,
                 );
             } else {
                 throw new Exception("Error parsing JSON body: " . $e->getMessage());
             }
         }
 
-        return $result;
+        $request = $request->withParsedBody($result);
+
+        return $request;
     }
 }

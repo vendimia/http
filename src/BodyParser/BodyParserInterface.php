@@ -1,5 +1,8 @@
 <?php
+
 namespace Vendimia\Http\BodyParser;
+
+use Vendimia\Http\Request;
 
 /**
  * Interface for body parsers
@@ -9,12 +12,7 @@ namespace Vendimia\Http\BodyParser;
 interface BodyParserInterface
 {
     /**
-     * Returns whether this parser can decode a MIME type
+     * Decodes a body string into an array
      */
-    public static function canDecode(string $mime): bool;
-
-    /**
-     * Decodes a string into an array
-     */
-    public static function parse(string $source): array;
+    public static function parseBody(Request $request): Request;
 }

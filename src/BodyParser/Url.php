@@ -1,5 +1,8 @@
 <?php
+
 namespace Vendimia\Http\BodyParser;
+
+use Vendimia\Http\Request;
 
 /**
  * Parses a url-encoded body to an array.
@@ -8,14 +11,11 @@ namespace Vendimia\Http\BodyParser;
  */
 class Url implements BodyParserInterface
 {
-    public static function canDecode(string $mime): bool
+    public static function parseBody(Request $request): Request
     {
-        return $mime == 'application/x-www-form-urlencoded';
-    }
+        parse_str($request->getBody()->getContents(), $parsed_body);
+        $request = $request->withParsedBody($parsed_body);
 
-    public static function parse($source): array
-    {
-        parse_str($source, $parsed_body);
-        return $parsed_body;
+        return $request;
     }
 }
