@@ -47,6 +47,15 @@ class Response extends Psr\Response implements Stringable
     }
 
     /**
+     * Creates an empty response
+     */
+    public static function noContent()
+    {
+        return (new self)
+            ->withStatus(204, 'No Content');
+    }
+
+    /**
      * Builds the HTTP response as a string
      */
     public function build(): string
