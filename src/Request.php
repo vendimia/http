@@ -73,21 +73,6 @@ class Request extends Psr\ServerRequest
             if ($parser_class = self::$REGISTERED_PARSERS[$content_type] ?? null) {
                 $server_request = $parser_class::parseBody($server_request);
             }
-
-            /*foreach (self::$REGISTERED_PARSERS as $mime => $parse_class) {
-                if ($parse_class::canDecode($content_type)) {
-                    $body_content = $body->getContents();
-
-                    // Solo parseamos si hay contenido en el body
-                    if ($body_content) {
-                        $server_request = $server_request->withParsedBody(
-                            $parse_class::parse($body_content)
-                        );
-                    }
-
-                    break;
-                }
-            }*/
         }
 
         $server_request->parsed_body = $server_request->getParsedBody();
