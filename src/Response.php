@@ -8,9 +8,12 @@ use Stringable;
  */
 class Response extends Psr\Response implements Stringable
 {
-    public function __construct()
+    public function __construct(?StreamInterface $body = null)
     {
-        $this->body = new Psr\Stream('php://temp', 'w');
+        if (!$body) {
+            $body = new Psr\Stream('php://temp', 'w');
+        }
+        $this->body = $body;
     }
 
     public static function fromString($string)
@@ -20,7 +23,7 @@ class Response extends Psr\Response implements Stringable
 
         return (new self)
             ->withBody($body)
-            ->withHeader('Content-length', strlen($string))
+            ->withHeader('Content-Length', strlen($string))
         ;
     }
 
