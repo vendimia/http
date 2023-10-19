@@ -37,7 +37,7 @@ class Request extends Psr\ServerRequest
         $parsed_url = parse_url(ltrim($_SERVER['REQUEST_URI'], '/'));
 
         // Si $host trae puerto, lo ignoramos
-        $host = $_SERVER['HTTP_HOST'];
+        $host = $_SERVER['HTTP_HOST'] ?? '';
         if (($colon_post = strpos($host, ':')) !== false) {
             $host = substr($host, 0, $colon_post);
         }
