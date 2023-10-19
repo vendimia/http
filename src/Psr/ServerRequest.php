@@ -99,7 +99,7 @@ class ServerRequest extends Request implements ServerRequestInterface
     }
 
     /**
-     * Sets all the headers from getallheaders() function, fast.
+     * Sets the HTTP headers and server params from getallheaders() and $_SERVER.
      */
     public function setHeadersFromPHP(): self
     {
@@ -109,8 +109,12 @@ class ServerRequest extends Request implements ServerRequestInterface
             $this->header_case_map[$lc_name] = $name;
         }
 
-        foreach (apache_request_headers() as $key => $value) {
-            $this->server_params[strtolower($key)] = $value;
+        foreach ($_SERVER as $key => $value) {
+            // Ignoramos los que empiezan con HTTP_, que son las cabeceras de la
+            // petición, ya obtenidas en el foreach anterior
+            if (!str_starts_with($key, 'HTTP_')) {
+                $this->server_params[strtolower($key)] = $value;
+            }
         }
 
         return $this;
