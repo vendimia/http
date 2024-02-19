@@ -103,6 +103,12 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function setHeadersFromPHP(): self
     {
+        // Si no existe getallheaders(), usamos otro método para obtener las
+        // cabeceras
+        if (!function_exists('getallheaders')) {
+            return $this->setHeadersFromDollarServer();
+        }
+
         foreach (getallheaders() as $name => $value) {
             $lc_name = strtolower($name);
             $this->headers[$name][] = $value;
@@ -120,4 +126,27 @@ class ServerRequest extends Request implements ServerRequestInterface
         return $this;
     }
 
+    /**
+     * Sets the HTTP headers from $_SERVER, reverting the CGI name manipulation.
+     *
+     * Section 4.1.18 from (RFC 3875)[http://www.faqs.org/rfcs/rfc3875.html] defines
+     * how a client request header has to be changed.
+     */
+    public function setHeadersFromDollarServer()
+    {
+        foreach ($_SERVER as $header => $value) {
+            if (str_starts_with($header, 'HTTP_')) {
+                // Estos son las cabeceras de la petición. Las convertimos de
+                // HTTP_NICE_HEADER to Nice-Header. No es obligatorio, pero se ve
+                $parts = explode('_', substr($header, 5));
+                $name = join('-', array_map(fn($part) => ucfirst(strtolower($part)), $parts));
+
+                $lc_name = strtolower($name);
+                $this->headers[$name][] = $value;
+                $this->header_case_map[$lc_name] = $name;
+            }
+        }
+
+        return $this;
+    }
 }
