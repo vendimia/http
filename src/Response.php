@@ -124,13 +124,27 @@ class Response extends Psr\Response implements Stringable
     }
 
     /**
-     * Returns a new Response with a JSON body
+     * Creates a new Response with a JSON body
+     *
+     * @see self::asJson()
      */
     public static function json(array $payload, $code = 200, $reason = "OK")
     {
         return self::fromString(json_encode($payload))
             ->withHeader('Content-type', 'application/json')
             ->withStatus($code, $reason)
+        ;
+    }
+
+    /**
+     * Simple reimplementation of self::json(), using named parameters.
+     *
+     * $code and $reason from self::json() can be setted using ->withStatus()
+     */
+    public function asJson(...$payload)
+    {
+        return self::fromString(json_encode($payload))
+            ->withHeader('Content-type', 'application/json')
         ;
     }
 }
