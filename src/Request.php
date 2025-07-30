@@ -1,4 +1,5 @@
 <?php
+
 namespace Vendimia\Http;
 
 use Vendimia\Collection\Collection;
@@ -72,7 +73,7 @@ class Request extends Psr\ServerRequest
 
         // Si llega a este punto, no hay un parser registrado para el tipo MIME
         throw new LogicException("No parser registered for MIME type: $mime");
-
+    }
 
     /**
      * Returns a new ServerRequest object with information gathered by
