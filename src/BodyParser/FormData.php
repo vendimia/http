@@ -23,4 +23,12 @@ class FormData implements BodyParserInterface
 
         return $request;
     }
+
+    /**
+     * Empty
+     */
+    public static function parseBack(mixed $payload): string
+    {
+        return '';
+    }
 }

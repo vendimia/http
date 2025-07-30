@@ -42,4 +42,9 @@ class Json implements BodyParserInterface
 
         return $request;
     }
+
+    public static function parseBack(mixed $payload): string
+    {
+        return json_encode($payload);
+    }
 }

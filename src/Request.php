@@ -2,6 +2,9 @@
 namespace Vendimia\Http;
 
 use Vendimia\Collection\Collection;
+use Vendimia\Http\BodyParser\BodyParserInterface;
+
+use LogicException;
 
 /**
  * HTTP Request from the client
@@ -14,7 +17,7 @@ class Request extends Psr\ServerRequest
      * Default Body parsers
      */
     private static $REGISTERED_PARSERS = [
-        'application/x-www-form-urlencoded' => BodyParser\Url::class,
+        'application/x-www-form-urlencoded' => BodyParser\UrlEncoded::class,
         'application/json' => BodyParser\Json::class,
         'multipart/form-data' => BodyParser\FormData::class,
     ];
@@ -26,6 +29,50 @@ class Request extends Psr\ServerRequest
     // Shortcut to $this->getQueryParams(), in a Vendimia\Collection\Collection
     // if available
     public $query_params;
+
+    /**
+     * Returns a BodyParserInterface instance for the given MIME type.
+     *
+     * $mime can have multiple MIME types. they will be sorted by the q parameter
+     *
+     * @param string $content_type The MIME type of the request body.
+     * @return BodyParserInterface The BodyParserInterface instance.
+     */
+    public static function getBodyParser(string $mime): string
+    {
+        $tipos = [];
+
+        // Reordenamos los mime types
+        foreach (explode(',', $mime) as $tipo) {
+            $tipo = trim($tipo);
+
+            // Si no tiene peso, le asignamos 1000
+            $peso = 1000;
+
+            $valor_q = strpos($tipo, ';q=');
+            if ($valor_q !== false) {
+                $peso = floatval(substr($tipo, $valor_q + 2)) * 1000;
+                $tipo = substr($tipo, 0, $valor_q);
+            }
+
+            // Cualquier otra opción que no sea ;q=, la ignoramos;
+            $tipo = explode(';', $tipo)[0];
+
+            $tipos[$peso] = $tipo;
+        }
+
+        // Los de mayor valor van primero
+        krsort($tipos);
+
+        foreach ($tipos as $tipo) {
+            if ($parser_class = self::$REGISTERED_PARSERS[$tipo] ?? null) {
+                return $parser_class;
+            }
+        }
+
+        // Si llega a este punto, no hay un parser registrado para el tipo MIME
+        throw new LogicException("No parser registered for MIME type: $mime");
+
 
     /**
      * Returns a new ServerRequest object with information gathered by
@@ -67,12 +114,11 @@ class Request extends Psr\ServerRequest
 
         // Si hay contenido, intentamos parsearlo
         if ($content_type = $server_request->getHeaderLine('content-type')) {
-            // Ignoramos los parámetros extras
-            $content_type = trim(explode(';', $content_type)[0]);
+            $parser_class = self::getBodyParser($content_type);
 
-            if ($parser_class = self::$REGISTERED_PARSERS[$content_type] ?? null) {
-                $server_request = $parser_class::parseBody($server_request);
-            }
+            // Ya que los requests son inmutables, creamos uno nuevo con
+            // el parsed_body colocado
+            $server_request = $parser_class::parseBody($server_request);
         }
 
         $server_request->parsed_body = $server_request->getParsedBody();
