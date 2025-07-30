@@ -1,6 +1,7 @@
 <?php
 namespace Vendimia\Http;
 
+use Psr\Http\Message\StreamInterface;
 use Stringable;
 
 /**
@@ -16,7 +17,7 @@ class Response extends Psr\Response implements Stringable
         $this->body = $body;
     }
 
-    public static function fromString($string)
+    public static function fromString($string): self
     {
         $body = new Psr\Stream('php://temp', 'w');
         $body->write($string);
@@ -128,7 +129,7 @@ class Response extends Psr\Response implements Stringable
      *
      * @see self::asJson()
      */
-    public static function json(array $payload, $code = 200, $reason = "OK")
+    public static function json(object|array $payload, $code = 200, $reason = "OK"): self
     {
         return self::fromString(json_encode($payload))
             ->withHeader('Content-type', 'application/json')
@@ -141,7 +142,7 @@ class Response extends Psr\Response implements Stringable
      *
      * $code and $reason from self::json() can be setted using ->withStatus()
      */
-    public function asJson(...$payload)
+    public function asJson(...$payload): self
     {
         return self::fromString(json_encode($payload))
             ->withHeader('Content-type', 'application/json')
